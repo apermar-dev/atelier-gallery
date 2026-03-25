@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Galería multimedia personal - Raspberry Pi" />
+  <title>{% block title %}Galería{% endblock %} — Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/browse/" class="logo" aria-label="Inicio de la galería">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="12" height="12" rx="3" fill="#a78bfa"/>
+          <rect x="16" width="12" height="12" rx="3" fill="#60a5fa"/>
+          <rect y="16" width="12" height="12" rx="3" fill="#34d399"/>
+          <rect x="16" y="16" width="12" height="12" rx="3" fill="#f472b6"/>
+        </svg>
+        <span>Atelier</span>
+      </a>
+
+      <nav class="breadcrumb" aria-label="Navegación de ruta">
+        {% block breadcrumb %}{% endblock %}
+      </nav>
+
+      <div class="header-actions">
+        {% block header_actions %}{% endblock %}
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content" id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <span>Atelier Gallery · Raspberry Pi</span>
+  </footer>
+
+  <!-- Lightbox container (montado por app.js) -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Visor de medios" hidden>
+    <button class="lb-close" id="lb-close" aria-label="Cerrar">✕</button>
+    <button class="lb-nav lb-prev" id="lb-prev" aria-label="Anterior">&#8249;</button>
+    <button class="lb-nav lb-next" id="lb-next" aria-label="Siguiente">&#8250;</button>
+
+    <div class="lb-media-wrap" id="lb-media-wrap">
+      <!-- Contenido inyectado por JS -->
+    </div>
+
+    <div class="lb-info-panel" id="lb-info-panel">
+      <button class="lb-info-toggle" id="lb-info-toggle" aria-label="Mostrar/ocultar info">ℹ</button>
+      <div class="lb-info-body" id="lb-info-body">
+        <h3 id="lb-filename">—</h3>
+        <dl id="lb-meta-list">
+          <dt>Cargando metadatos…</dt>
+        </dl>
+      </div>
+    </div>
+
+    <div class="lb-overlay" id="lb-overlay"></div>
+  </div>
+
+  <script src="/static/app.js" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

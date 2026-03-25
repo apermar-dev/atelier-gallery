@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if ruta_actual %}{{ ruta_actual.split('/')[-1] }}{% else %}Inicio{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<ol class="bc-list" role="list">
+  {% for crumb in breadcrumb %}
+    {% if loop.last %}
+      <li class="bc-item bc-current" aria-current="page">{{ crumb.nombre }}</li>
+    {% else %}
+      <li class="bc-item">
+        <a href="/browse/{{ crumb.ruta }}" class="bc-link">{{ crumb.nombre }}</a>
+        <span class="bc-sep" aria-hidden="true">›</span>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ol>
+{% endblock %}
+
+{% block header_actions %}
+  {% if ruta_padre is not none %}
+    <a href="/browse/{{ ruta_padre }}" class="btn-up" title="Subir un nivel" aria-label="Ir al directorio padre">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 3L3 8h3v5h4V8h3L8 3z" fill="currentColor"/>
+      </svg>
+      Subir
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="gallery-wrap">
+
+  <!-- ── Estadísticas rápidas ─────────────────────────────── -->
+  <p class="gallery-stats">
+    {{ carpetas|length }} carpeta{% if carpetas|length != 1 %}s{% endif %},
+    {{ total_archivos }} archivo{% if total_archivos != 1 %}s{% endif %}
+    {% if total_paginas > 1 %} · Página {{ pagina }}/{{ total_paginas }}{% endif %}
+  </p>
+
+  <!-- ── Carpetas ─────────────────────────────────────────── -->
+  {% if carpetas %}
+  <section class="section-block" aria-label="Carpetas">
+    <h2 class="section-title">📁 Carpetas</h2>
+    <div class="folder-grid" role="list">
+      {% for carpeta in carpetas %}
+      <a href="/browse/{{ carpeta.ruta_relativa }}"
+         class="folder-card"
+         role="listitem"
+         title="{{ carpeta.nombre }}">
+        <div class="folder-thumb">
+          {% if carpeta.thumb_relativa %}
+            <img src="/thumb/{{ carpeta.thumb_relativa }}"
+                 alt=""
+                 class="folder-cover"
+                 loading="lazy"
+                 onerror="this.style.display='none'" />
+          {% endif %}
+          <svg class="folder-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M4 10a4 4 0 014-4h12l4 4h20a4 4 0 014 4v24a4 4 0 01-4 4H8a4 4 0 01-4-4V10z" fill="#6d28d9" fill-opacity=".3"/>
+            <path d="M4 16h40v22a4 4 0 01-4 4H8a4 4 0 01-4-4V16z" fill="#7c3aed" fill-opacity=".5"/>
+          </svg>
+        </div>
+        <div class="folder-info">
+          <span class="folder-name">{{ carpeta.nombre }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── Archivos Multimedia ────────────────────────────────── -->
+  {% if archivos %}
+  <section class="section-block" aria-label="Archivos multimedia">
+    <h2 class="section-title">🖼 Archivos</h2>
+    <div class="media-grid" id="media-grid" role="list">
+      {% for item in archivos %}
+      <article class="media-card"
+               role="listitem"
+               data-tipo="{{ item.tipo }}"
+               data-ruta="{{ item.ruta_relativa }}"
+               data-ext="{{ item.extension.lstrip('.') | upper }}"
+               data-nombre="{{ item.nombre }}"
+               data-idx="{{ loop.index0 }}"
+               tabindex="0"
+               aria-label="{{ item.nombre }}">
+
+        <div class="media-thumb-wrap">
+          <!-- Skeleton loader mientras se carga la imagen -->
+          <div class="skeleton" aria-hidden="true"></div>
+
+          <!-- Imagen del thumbnail con lazy loading nativo -->
+          <img class="media-thumb"
+               src="/thumb/{{ item.thumb_relativa }}"
+               alt="{{ item.nombre }}"
+               loading="lazy"
+               decoding="async"
+               data-src="/thumb/{{ item.thumb_relativa }}" />
+
+          <!-- Badge con extensión del archivo -->
+          <span class="badge badge-{{ item.tipo }}">
+            {{ item.extension.lstrip('.') | upper }}
+          </span>
+
+          <!-- Indicador de reproducción para vídeos -->
+          {% if item.tipo == 'video' %}
+          <span class="badge-play" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <circle cx="12" cy="12" r="12" fill="rgba(0,0,0,.55)"/>
+              <path d="M9.5 7.5l7 4.5-7 4.5V7.5z" fill="white"/>
+            </svg>
+          </span>
+          {% endif %}
+
+          <!-- Placeholder de tipo si el thumbnail falla -->
+          <div class="media-error-icon" aria-hidden="true" style="display:none">
+            {% if item.tipo == 'video' %}
+              <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
+                <rect width="48" height="48" rx="8" fill="#1e3a5f"/>
+                <path d="M8 14a4 4 0 014-4h16l6 6H36a4 4 0 014 4v12a4 4 0 01-4 4H12a4 4 0 01-4-4V14z" fill="#2d6a9f"/>
+                <path d="M19 18l10 6-10 6V18z" fill="white"/>
+              </svg>
+            {% elif item.tipo == 'raw' %}
+              <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
+                <rect width="48" height="48" rx="8" fill="#2d1b1b"/>
+                <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#f87171" font-size="14" font-family="Inter">RAW</text>
+              </svg>
+            {% else %}
+              <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
+                <rect width="48" height="48" rx="8" fill="#1b2838"/>
+                <circle cx="16" cy="20" r="4" fill="#60a5fa"/>
+                <path d="M6 40l10-14 8 10 6-8 12 12H6z" fill="#3b82f6"/>
+              </svg>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="media-meta">
+          <span class="media-name" title="{{ item.nombre }}">{{ item.nombre }}</span>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── Vacío ─────────────────────────────────────────────── -->
+  {% if not carpetas and not archivos %}
+  <div class="empty-state">
+    <svg viewBox="0 0 96 96" fill="none" width="96" height="96" aria-hidden="true">
+      <circle cx="48" cy="48" r="44" fill="#1e1e2e"/>
+      <path d="M30 38a4 4 0 014-4h28a4 4 0 014 4v28a4 4 0 01-4 4H34a4 4 0 01-4-4V38z" fill="#313244"/>
+      <circle cx="48" cy="48" r="8" fill="#45475a"/>
+    </svg>
+    <p>Esta carpeta está vacía</p>
+    <a href="/browse/" class="btn-primary">← Ir al inicio</a>
+  </div>
+  {% endif %}
+
+  <!-- ── Paginación ────────────────────────────────────────── -->
+  {% if total_paginas > 1 %}
+  <nav class="pagination" aria-label="Paginación">
+    {% if pagina > 1 %}
+      <a href="?p={{ pagina - 1 }}" class="page-btn">← Anterior</a>
+    {% endif %}
+    <span class="page-info">{{ pagina }} / {{ total_paginas }}</span>
+    {% if pagina < total_paginas %}
+      <a href="?p={{ pagina + 1 }}" class="page-btn">Siguiente →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+</div><!-- /gallery-wrap -->
+{% endblock %}

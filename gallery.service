@@ -1,0 +1,49 @@
+[Unit]
+Description=Atelier Gallery — Galería multimedia Raspberry Pi
+Documentation=https://github.com/fastapi/fastapi
+After=network.target
+Wants=network.target
+
+[Service]
+# Usuario que ejecuta el servicio (ajustar si es diferente)
+User=ubuntu
+Group=ubuntu
+
+# Directorio de trabajo donde está el proyecto
+WorkingDirectory=/opt/atelier/gallery
+
+# Comando de arranque: usa el venv del proyecto
+ExecStart=/opt/atelier/gallery/venv/bin/uvicorn main:app \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --workers 1 \
+    --loop uvloop \
+    --no-access-log
+
+# Reinicio automático si el proceso muere
+Restart=on-failure
+RestartSec=5s
+
+# Variables de entorno de producción
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+
+# Límites de recursos (proteger la Raspberry Pi)
+# Límite suave de memoria: 512MB; duro: 800MB
+MemoryHigh=512M
+MemoryMax=800M
+CPUQuota=80%
+
+# Seguridad básica del proceso
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/atelier
+
+# Logs van a journald automáticamente
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=atelier-gallery
+
+[Install]
+WantedBy=multi-user.target

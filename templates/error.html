@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Error {{ codigo }} — Atelier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Outfit:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/browse/" class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="12" height="12" rx="3" fill="#a78bfa"/>
+          <rect x="16" width="12" height="12" rx="3" fill="#60a5fa"/>
+          <rect y="16" width="12" height="12" rx="3" fill="#34d399"/>
+          <rect x="16" y="16" width="12" height="12" rx="3" fill="#f472b6"/>
+        </svg>
+        <span>Atelier</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="main-content error-page">
+    <div class="error-card">
+      <span class="error-code">{{ codigo }}</span>
+      <p class="error-msg">{{ mensaje }}</p>
+      <a href="/browse/" class="btn-primary">← Volver al inicio</a>
+    </div>
+  </main>
+</body>
+</html>
